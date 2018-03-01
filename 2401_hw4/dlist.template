@@ -1,0 +1,306 @@
+//Author: Sean Jones
+//Date: 20 March, 2017
+//Description: Definitions for all functions in the 'dlist.h' class, that were not previously defined in said file.
+
+#include <iostream>
+#include <string>
+#include "Dnode.h"
+
+using namespace std;
+
+template <class Item>
+void dlist<Item>::rear_insert(Item& r_insert)
+{
+	if(tail == NULL)
+    {
+        tail = new Dnode<Item>;
+        tail ->set_data(r_insert);
+        tail ->set_next(NULL);
+        head = tail;
+        head ->set_previous(NULL);
+        head ->set_next(tail->next());
+        return;
+    }
+    if(tail == head)
+    {
+        tail = new Dnode<Item>;
+        Dnode<Item> * temp = new Dnode<Item>;
+        temp = head;
+        head = temp;
+        head ->set_previous(NULL);
+        head ->set_next(tail);
+        tail ->set_data(r_insert);
+        tail ->set_next(NULL);
+        tail ->set_previous(head);
+        return;
+    }
+    Dnode<Item> * temp = new Dnode<Item>;
+    temp -> set_data(r_insert);
+    temp -> set_next(NULL);
+    temp -> set_previous(tail);
+    tail -> set_next(temp);
+    tail = temp;
+    total++;
+    return;
+
+}
+template <class Item>
+void dlist<Item>::front_insert(Item& f_insert)
+{
+    if(head == NULL) 
+    {
+        head = new Dnode<Item>;
+        head -> set_data(f_insert);
+        head -> set_previous(NULL);
+        tail = head;
+        tail -> set_next(NULL);
+        tail -> set_previous(head ->previous());
+        return;
+    }
+    if(head == tail) 
+    {
+        head = new Dnode<Item>;
+        Dnode<Item> * temp = new Dnode<Item>;
+        temp = tail;
+        tail = temp;
+        tail -> set_next(NULL);
+        tail -> set_previous(head);
+        head -> set_next(tail);
+        head -> set_previous(NULL);
+        head -> set_data(f_insert);
+        return;
+    }
+    Dnode<Item> * temp = new Dnode<Item>;
+    temp -> set_data(f_insert);
+    temp -> set_previous(NULL);
+    temp -> set_next(head);
+    head -> set_previous(temp);
+    head = temp;
+    total++;
+    return;
+}
+
+template <class Item>
+void dlist<Item>::front_remove()
+{
+    if(head == NULL)
+    {
+        return;
+    }
+    if(head == tail)
+    {
+        head = tail = NULL;
+        return;
+    }
+    head = head ->next();
+    head ->set_previous(NULL);
+    total--;
+    return;
+}
+
+template <class Item>
+void dlist<Item>::rear_remove()
+{
+	if(tail == NULL)
+    {
+        return;
+    }
+    if(head == tail)
+    {
+        head = tail = NULL;
+    }
+    tail = tail->previous();
+    tail ->set_next(NULL);
+    total--;
+    return;
+}
+
+template <class Item>
+void dlist<Item>::show()const
+{
+	Dnode<Item> * cursor = head;
+	if(head == NULL)
+	{
+		cout << "The list is empty." << endl;
+		return;
+	}
+	else
+	{
+		for(Dnode<Item> * tmp = head; tmp!= NULL; tmp = tmp->next())
+		{
+			cout << tmp->data() << endl;
+		}
+	}
+}
+template <class Item>
+void dlist<Item>::reverse_show()const
+{
+	Dnode<Item> * cursor = tail;
+	if(head == NULL)
+	{
+		cout << "The list is empty." << endl;
+	}
+	else
+	{
+		for(Dnode<Item> * tmp = tail; tmp != NULL; tmp = tmp->previous())
+        {
+            cout << tmp->data() << endl;
+        }
+	}
+}
+
+
+template <class Item>
+void dlist<Item>::insert_before(iterator loc, Item& item)
+{
+	if(loc == begin() || loc == r_end())
+    {
+        front_insert(item);
+    }
+    else
+    {
+        Dnode<Item> * temp = new Dnode<Item>;
+        temp -> set_data(item);
+        temp -> set_next(loc.ptr);
+        temp -> set_previous(loc.ptr ->previous());
+        loc.ptr-> previous() -> set_next(temp);
+        loc.ptr -> set_previous(temp);
+    }
+    total++;
+}
+
+template <class Item>
+void dlist<Item>::insert_after(iterator loc,Item& item)
+{
+	if(loc == end() || loc == r_begin() || loc == r_end())
+    {
+        rear_insert(item);
+    }
+    else
+    {
+        Dnode<Item> * temp = new Dnode<Item>;
+        temp -> set_data(item);
+        temp -> set_next(loc.ptr -> next());
+        temp -> set_previous(loc.ptr);
+        loc.ptr -> next() -> set_previous(temp);
+        loc.ptr -> set_next(temp);
+    }
+    total++;
+}
+
+template <class Item>
+void dlist<Item>::remove(iterator loc)
+{
+	Dnode<Item> * temp;
+    temp = loc.ptr;
+    if(head == NULL)
+    {
+        cout<< "List is empty" << endl;
+    }
+    else if(head == tail)
+    {
+        delete temp;
+        head == NULL;
+        tail == NULL;
+    }
+    else if(temp == head)
+    {
+        head = head -> next();
+        head -> set_previous(NULL);
+        delete temp;
+    }
+    else if(temp == tail)
+    {
+        tail = tail -> previous();
+        tail -> set_next(NULL);
+        delete temp;
+    }
+    else
+    {
+        temp ->previous() -> set_next(temp ->next());
+        temp ->next() -> set_previous(temp ->previous());
+        delete temp;
+    }
+    total--;
+}
+
+
+template <class Item>
+int dlist<Item>::size()
+{
+	Dnode<Item> * cursor;
+    int count = 0;
+    cursor = head;
+    while(cursor!=NULL)
+    {
+        count++;
+        cursor = cursor -> next();
+    }
+    return count;
+}
+
+template <class Item>
+dlist<Item>::dlist(const dlist<Item>& other)
+{
+	copy(other);
+}
+
+template <class Item>
+dlist<Item>& dlist<Item>::operator =(const dlist<Item>& other)
+{
+	if(this == &other)
+    {
+        return *this;
+    }
+    destroy();
+    copy(other);
+
+    return *this;
+}
+
+template <class Item>
+dlist<Item>::~dlist()
+{
+	destroy();
+}
+template <class Item>
+void dlist<Item>::destroy()
+{
+    Dnode<Item> *rmove;
+    while(head != NULL && head != tail)
+    {
+        rmove = head;
+        head = head -> next();
+        delete rmove;
+    }
+    head = tail = NULL;
+}
+
+template <class Item>
+void dlist<Item>::copy(const dlist<Item>& other)
+{
+    Dnode<Item> * node1 = new Dnode<Item>;
+    Dnode<Item> * node2;
+    if(other.head == NULL)
+    {
+        head = NULL;
+        tail = NULL;
+    }
+    else
+    {
+        node1 -> set_data(other.head -> data());
+        node1 -> set_next(other.head ->next());
+        head = new Dnode<Item>(other.head -> data());
+        node1 = other.head -> next();
+        node2 = head;
+        while(node1 != NULL)
+        {
+            Dnode<Item> * cursor = new Dnode<Item>(node1 -> data());
+            node2 -> set_next(cursor);
+            cursor -> set_previous(node2);
+            node2 = node2 -> next();
+            node1 = node1 -> next();
+        }
+        tail = node2;
+    }
+}
